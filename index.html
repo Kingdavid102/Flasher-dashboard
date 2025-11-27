@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashers Hub | Premium Mail Services</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * { font-family: 'Inter', sans-serif; }
+        
+        body {
+            background: linear-gradient(135deg, #0a0a1a 0%, #1a1a3a 50%, #0f0f2f 100%);
+            min-height: 100vh;
+        }
+        
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            overflow: hidden;
+            z-index: 0;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.2); }
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        @keyframes pulse-glow {
+            0%, 100% { box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
+            50% { box-shadow: 0 0 40px rgba(139, 92, 246, 0.6); }
+        }
+        
+        @keyframes shimmer {
+            0% { background-position: -200% center; }
+            100% { background-position: 200% center; }
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        @keyframes modalFadeIn {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+        
+        .card {
+            animation: float 4s ease-in-out infinite;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+        }
+        
+        .card:nth-child(1) { animation-delay: 0s; }
+        .card:nth-child(2) { animation-delay: 0.5s; }
+        .card:nth-child(3) { animation-delay: 1s; }
+        
+        .card:hover {
+            transform: translateY(-15px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(139, 92, 246, 0.3);
+        }
+        
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: linear-gradient(45deg, #8b5cf6, #06b6d4, #8b5cf6);
+            border-radius: 1.5rem;
+            z-index: -1;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .card:hover::before { opacity: 1; }
+        
+        .icon-container {
+            animation: pulse-glow 2s ease-in-out infinite;
+        }
+        
+        .btn-shimmer {
+            background: linear-gradient(90deg, #8b5cf6 0%, #06b6d4 50%, #8b5cf6 100%);
+            background-size: 200% auto;
+            animation: shimmer 3s linear infinite;
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 40px rgba(139, 92, 246, 0.5);
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .modal-overlay.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a3a 0%, #2a2a4a 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 1.5rem;
+            padding: 3rem;
+            text-align: center;
+            animation: modalFadeIn 0.3s ease-out;
+            box-shadow: 0 25px 50px rgba(139, 92, 246, 0.3);
+        }
+        
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(139, 92, 246, 0.2);
+            border-top-color: #8b5cf6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(139, 92, 246, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-top: 1.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8b5cf6, #06b6d4);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+    </style>
+</head>
+<body class="text-white">
+    <!-- Stars Background -->
+    <div class="stars" id="stars"></div>
+    
+    <!-- Redirect Modal -->
+    <div class="modal-overlay" id="redirectModal">
+        <div class="modal-content">
+            <div class="spinner"></div>
+            <h3 class="text-2xl font-bold text-white mb-2">Redirecting...</h3>
+            <p class="text-gray-400 mb-2" id="modalServiceName">Preparing your destination</p>
+            <p class="text-cyan-400 text-sm" id="modalUrl">Please wait...</p>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Header -->
+    <header class="relative z-10 border-b border-white/10 backdrop-blur-sm">
+        <nav class="container mx-auto px-6 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center">
+                    <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                    </svg>
+                </div>
+                <span class="text-xl font-bold bg-gradient-to-r from-violet-400 to-cyan-400 bg-clip-text text-transparent">FlashersHub</span>
+            </div>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="#" class="text-gray-300 hover:text-white transition-colors">Home</a>
+                <a href="#services" class="text-gray-300 hover:text-white transition-colors">Services</a>
+                <a href="#" class="text-gray-300 hover:text-white transition-colors">Pricing</a>
+                <a href="#" class="text-gray-300 hover:text-white transition-colors">Support</a>
+            </div>
+            <button class="btn-shimmer px-5 py-2.5 rounded-full text-white font-semibold text-sm">
+                Get Started
+            </button>
+        </nav>
+    </header>
+    
+    <!-- Hero Section -->
+    <section class="relative z-10 container mx-auto px-6 pt-20 pb-12 text-center">
+        <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-violet-500/10 border border-violet-500/20 mb-6">
+            <span class="w-2 h-2 rounded-full bg-green-400 animate-pulse"></span>
+            <span class="text-sm text-violet-300">All Systems Operational</span>
+        </div>
+        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 glow-text">
+            <span class="bg-gradient-to-r from-white via-violet-200 to-cyan-200 bg-clip-text text-transparent">
+                Available Flashers
+            </span>
+        </h1>
+        <p class="text-xl text-gray-400 max-w-2xl mx-auto mb-8 leading-relaxed">
+            Explore our premium collection of mail services. Select your preferred flasher below to get started with industry-leading delivery rates.
+        </p>
+        <div class="flex flex-wrap justify-center gap-4">
+            <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10">
+                <svg class="w-5 h-5 text-green-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-sm text-gray-300">99.9% Uptime</span>
+            </div>
+            <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10">
+                <svg class="w-5 h-5 text-cyan-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-sm text-gray-300">Instant Delivery</span>
+            </div>
+            <div class="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 border border-white/10">
+                <svg class="w-5 h-5 text-violet-400" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                </svg>
+                <span class="text-sm text-gray-300">Secure & Private</span>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Cards Section -->
+    <section id="services" class="relative z-10 container mx-auto px-6 py-16">
+        <div class="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            
+            <!-- Card 1: BNK Mail -->
+            <div class="card relative bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-3xl p-8 border border-white/10 backdrop-blur-sm"
+                 onclick="handleCardClick('BNK Mail', 'https://bnk-flasher-production.up.railway.app')">
+                <div class="icon-container w-16 h-16 rounded-2xl bg-gradient-to-br from-violet-500 to-purple-600 flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                    </svg>
+                </div>
+                <div class="inline-block px-3 py-1 rounded-full bg-violet-500/20 text-violet-300 text-xs font-semibold mb-4">POPULAR</div>
+                <h3 class="text-2xl font-bold text-white mb-3">BNK Mail Flasher</h3>
+                <p class="text-gray-400 mb-6 leading-relaxed">Premium banking mail flasher with high delivery rates and advanced security features.</p>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center gap-3 text-gray-300 text-sm">
+                        <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        High inbox delivery rate
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-300 text-sm">
+                        <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Bank-grade encryption
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-300 text-sm">
+                        <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        24/7 Support available
+                    </li>
+                </ul>
+                <button class="w-full btn-shimmer py-3.5 rounded-xl text-white font-semibold transition-all hover:shadow-lg hover:shadow-violet-500/25">
+                    Access Now
+                </button>
+            </div>
+            
+            
+            
+            <!-- Card 3: Wallet Phrase Mail -->
+            <div class="card relative bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-3xl p-8 border border-white/10 backdrop-blur-sm"
+                 onclick="handleCardClick('Wallet Phrase Mail', 'https://flasher-3-production.up.railway.app/landing.html')">
+                <div class="icon-container w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                    </svg>
+                </div>
+                <div class="inline-block px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-300 text-xs font-semibold mb-4">PREMIUM</div>
+                <h3 class="text-2xl font-bold text-white mb-3">Wallet Phrase Mail H@ck</h3>
+                <p class="text-gray-400 mb-6 leading-relaxed">Advanced seed phrase recovery flasher with maximum security protocols enabled.</p>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center gap-3 text-gray-300 text-sm">
+                        <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Recovery phrase templates
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-300 text-sm">
+                        <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Maximum encryption
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-300 text-sm">
+                        <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Priority delivery queue
+                    </li>
+                </ul>
+                <button class="w-full bg-gradient-to-r from-emerald-500 to-teal-600 py-3.5 rounded-xl text-white font-semibold transition-all hover:shadow-lg hover:shadow-emerald-500/25 hover:scale-[1.02]">
+                    Access Now
+                </button>
+            </div>
+            
+            <!-- Card 2: Wallet Mail -->
+            <div class="card relative bg-gradient-to-br from-slate-800/80 to-slate-900/80 rounded-3xl p-8 border border-white/10 backdrop-blur-sm"
+                 onclick="handleCardClick('Wallet Mail', 'https://fake-receipts-production.up.railway.app')">
+                <div class="icon-container w-16 h-16 rounded-2xl bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center mb-6">
+                    <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                    </svg>
+                </div>
+                <div class="inline-block px-3 py-1 rounded-full bg-cyan-500/20 text-cyan-300 text-xs font-semibold mb-4">TRENDING</div>
+                <h3 class="text-2xl font-bold text-white mb-3">Reciept Generator</h3>
+                <p class="text-gray-400 mb-6 leading-relaxed">Specialized bnk reciept generator with good looking templates and styling.</p>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center gap-3 text-gray-300 text-sm">
+                        <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Reciept templates
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-300 text-sm">
+                        <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Multi-chain support
+                    </li>
+                    <li class="flex items-center gap-3 text-gray-300 text-sm">
+                        <svg class="w-5 h-5 text-green-400 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                        </svg>
+                        Real-time notifications
+                    </li>
+                </ul>
+                <button class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 py-3.5 rounded-xl text-white font-semibold transition-all hover:shadow-lg hover:shadow-cyan-500/25 hover:scale-[1.02]">
+                    Access Now
+                </button>
+            </div>
+        </div>
+    </section>
+    
+    <!-- Footer -->
+    <footer class="relative z-10 border-t border-white/10 mt-20">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid md:grid-cols-4 gap-8 mb-12">
+                <div>
+                    <div class="flex items-center gap-3 mb-4">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-violet-500 to-cyan-500 flex items-center justify-center">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                            </svg>
+                        </div>
+                        <span class="text-xl font-bold text-white">FlashersHub</span>
+                    </div>
+                    <p class="text-gray-400 text-sm leading-relaxed">Premium mail services with industry-leading delivery rates and security.</p>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Services</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">BNK Mail</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Wallet Mail</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Phrase Mail</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Support</h4>
+                    <ul class="space-y-2 text-sm text-gray-400">
+                        <li><a href="#" class="hover:text-white transition-colors">Help Center</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Documentation</a></li>
+                        <li><a href="#" class="hover:text-white transition-colors">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-semibold text-white mb-4">Connect</h4>
+                    <div class="flex gap-3">
+                        <a href="#" class="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M24 4.557c-.883.392-1.832.656-2.828.775 1.017-.609 1.798-1.574 2.165-2.724-.951.564-2.005.974-3.127 1.195-.897-.957-2.178-1.555-3.594-1.555-3.179 0-5.515 2.966-4.797 6.045-4.091-.205-7.719-2.165-10.148-5.144-1.29 2.213-.669 5.108 1.523 6.574-.806-.026-1.566-.247-2.229-.616-.054 2.281 1.581 4.415 3.949 4.89-.693.188-1.452.232-2.224.084.626 1.956 2.444 3.379 4.6 3.419-2.07 1.623-4.678 2.348-7.29 2.04 2.179 1.397 4.768 2.212 7.548 2.212 9.142 0 14.307-7.721 13.995-14.646.962-.695 1.797-1.562 2.457-2.549z"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189Z"/></svg>
+                        </a>
+                        <a href="#" class="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors">
+                            <svg class="w-5 h-5 text-gray-400" fill="currentColor" viewBox="0 0 24 24"><path d="M12 0C5.374 0 0 5.373 0 12c0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23A11.509 11.509 0 0112 5.803c1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576C20.566 21.797 24 17.3 24 12c0-6.627-5.373-12-12-12z"/></svg>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="border-t border-white/10 pt-8 text-center text-sm text-gray-500">
+                <p>&copy; 2025 FlashersHub. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+    
+    <script>
+        // Generate stars
+        const starsContainer = document.getElementById('stars');
+        for (let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            star.style.width = Math.random() * 2 + 1 + 'px';
+            star.style.height = star.style.width;
+            starsContainer.appendChild(star);
+        }
+        
+        // ============================================
+        // CONFIGURE YOUR REDIRECT LINKS HERE
+        // ============================================
+        const redirectLinks = {
+            'BNK Mail': 'https://bnk-flasher-production.up.railway.app',
+            'Wallet Mail': 'https://fake-receipts-production.up.railway.app',
+            'Wallet Phrase Mail': 'https://flasher-3-production.up.railway.app/landing.html'
+        };
+        // ============================================
+        
+        function handleCardClick(serviceName, defaultUrl) {
+            const url = redirectLinks[serviceName] || defaultUrl;
+            const modal = document.getElementById('redirectModal');
+            const serviceNameEl = document.getElementById('modalServiceName');
+            const urlEl = document.getElementById('modalUrl');
+            const progressFill = document.getElementById('progressFill');
+            
+            // Show modal
+            modal.classList.add('active');
+            serviceNameEl.textContent = `Connecting to ${serviceName}...`;
+            urlEl.textContent = url;
+            
+            // Animate progress bar over 3 seconds
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 3.33;
+                progressFill.style.width = Math.min(progress, 100) + '%';
+            }, 100);
+            
+            // Redirect after 3 seconds
+            setTimeout(() => {
+                clearInterval(interval);
+                window.location.href = url;
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
